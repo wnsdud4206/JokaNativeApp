@@ -1,0 +1,8 @@
+참고 - https://nomadcoders.co/react-native-for-beginners/lectures/3119
+
+
+
+https://snack.expo.dev/ 에서 내 프로젝트와 연동이 안돼있는데 이 사이트 좌측 사이드바에 옵션메뉴를 클릭하면 import git repository가 있다. 이걸 클릭해서 git에 올린 내 프로젝트를 가져와서 저장하면 되는듯(불러와짐)
+
+
+

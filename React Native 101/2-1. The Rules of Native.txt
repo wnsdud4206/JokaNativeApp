@@ -1,0 +1,71 @@
+참고 - https://nomadcoders.co/react-native-for-beginners/lectures/3120
+
+
+
+react native의 규칙
+
+1. react native는 웹사이트가 아니다.
+HTML이 아니기 때문에 div는 쓸 수 없다. 웹사이트가 아니라는 걸 명심해야한다. 그대신 View라는 것을 사용할 수 있다. View는 container이다. 앞으로 만들 모든 것은 View로 만들게 될 것이다. View는 항상 import 해야 한다.
+
+2. react native에 있는 모든 text는 text component에 들어가야 한다.
+다시 말하지만 이건 브라우저가 아니기때문에 span같은 태그를 사용할 수 없다. 그렇기 때문에 react native에 있는 모든 텍스트는 text component 안에 들어가 있어야 한다. Text에 넣지 않고 만약 View에 넣었다면 텍스트 문자열은 text component 안에서 랜더링 되어야 한다는 오류가 발생하게 된다. 브라우저에서 react.js로 p, span, div를 사요하면 신경쓰지 않을 것이지만 react native에서는 Text component 안에 text를 넣어야 한다는 것을 기억해야 한다.
+
+3. 
+View에 style이 있는데 이것은 웹의 react.js에서 할 수 있는 것과 비슷하다. 웹의 react.js에서 이와 같은 div를 가질 수 있기 때문이다. 차이점은 일부 style을 사용할 수 없다는 것이다. 예를 들어 border라는 style을 주려고 할 때 브라우저에서는 작동하는 값인 "1px green dashed"를 입력해서 적용해보면 border는 유효한 style property가 아니라는 오류가 나타나게 된다. 따라서 웹에서 사용하던 모든 것을 사용할 수는 없다. react native 팀은 backgroundColor, alignItems(camelCase)와 같이 거의 모든 것을 가져오려고 했지만 웹에서 가져올 수 없는 property가 있다. 그래도 98%정도는 사용할 수 있다고 한다.
+그리고 App.js 하단에 StyleSheet.create가 무엇인지 궁금할 수 있는데 StyleSheet.create는 object를 생성하는 데 사용한다. object 형태로 style을 저장한 object들을 묶은 object 이다. 그 styles객체에 container라는 style object가 있는데 추가해서 style object를 더 만들어 사용할 수 있다.
+
+
+StyleSheet.create를 사용하는 이유
+
+- 아주 좋은 css 자동 완성 기능을 제공한다.
+예를 들어 color라는 style을 추가할 때 color의 c만 입력해도 관련된 모든 옵션을 볼 수 있다.(backgroundColor, justifyContent 등) 또 component를 정리하는데 유용하다. 하지만 반드시 필요한 것은 아니다. <View style={styles.container}>가 아니라 <View style={{color: "blue"}} 이런식으로 사용할 수 있기 때문이다.(그래도 재사용성을 생각하면 StyleSheet.create를 사용하는 편이 더 편리할 것 같다.)
+또한 Styles를 분리하려는 경우 StyleSheet.create가 꼭 필요한 것은 아니다.
+const styles = {
+  container: {
+    // styles
+  }
+};
+StyleSheet.create() 안에 넣어서 사용하는 것과 다르게 위처럼 사용할 수도 있다. 그러나 굳이 StyleSheet.create()를 사용하는 이유는 자동완성 기능을 지원하지 않게 되기 때문이다. 이게 바로 StyleSheet.create()를 사용하는 이유이다. StyleSheet.create는 단지 css 자동완성을 지원하는 object일 뿐이다.
+또 명심해야 할 건 container처럼 이름이 정해져 있는 것이 아니라 자유롭게 작명해서 사용할 수 있다는 것이다.
+
+
+잘 작동하는지 보기위해 다음과 같이 수정하고 적용시켜보면 잘 적용되는 것을 확인할 수 있다.
+ex) App.js
+...
+export default function App() {
+  return (
+    <View style={styles.container}>
+      <Text style={styles.text}>Hello World!!</Text>
+      <StatusBar style="auto" />
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  text: {
+    fontSize: 28,
+    color: "red"
+  }
+})
+
+
+
+
+다시 규칙을 정리해보자면
+
+1. 우리는 div를 사용할 수 없기 때문에 View를 사용해야 한다. View를 사용하기 위해서는 react native로부터 View를 import 해야한다.(StyleSheet, Text 와 같은 것들도 마찬가지)
+2. 모든 텍스트는 text component 안에 있어야 한다. 브라우저가 아니기 때문에(native) HTML처럼 span, p, h1 등등이 없다.
+3. 내가 원하는대로 styles를 추가하고 수정할 수 있다. StyleSheet.create를 쓰거나 그게 싫으면 그냥 object로 만들어 줄 수 있지만 StyleSheet.create를 사용하면 css 자동완성 기능이 지원된다. 또한 JSX? style property의 {{}}안에서도 css 자동완성을 사용할 수 있다. 그래서 보통 component를 만들고 나중에 하단에다가 StyleSheet.create()를 만드는 것이다. 왜냐하면 function에 많은 styles들이 있으면 가독성도 떨어지고 복잡해지기 때문에 일반적으로 style을 StyleSheet에 구분하고 component를 위에 써주게 되는 것이다.
+
+
+
+StatusBar(상태표시줄)
+보다시피 status-bar는 react native에서 import 해주지 않았다. status-bar는 third-party(제 3자) 패키지다. third-party components는 다음 강의에서 다뤄볼 것이다. 왜냐하면 그건 아주 중요하기 때문이다. 현재 말하고자 하는 것은 StatusBar component가 랜더링 되고 있다는 것이다. 하지만 이 component는 화면이 없다. status-bar componennt는 시계, 배터리, Wi-Fi를 의미한다. 이걸 얘기하는 이유는 우리가 지금 브라우저를 쓰지 않는다는 것을 다시 알려주고 싶기 때문이다. 말했듯이 react native는 단지 개발자들을 위한 인터페이스일 뿐이다. IOS와 Android와 같은 운영체제를 구성하기 위해서 말이다. StatusBar component는 휴대폰 상단에 있는 상태바와 소통 할 수 있는 방법일 뿐이다. StatusBar의 style을 auto에서 light로 바꿔주면 상태바의 아이콘들이 밝을 색으로 바뀌는 것을 확인할 수 있다. StatusBar는 우리가 평소 사용하는 react native component이다.
+일부 component와 대부분의 react native는 단지 운영체제와 소통하는 component 라는 증거이다.
+보다시피 status-bar는 상태바를 변경하는 일을 담당하고 있다. 이것은 브라우저 기반인 react.js에서 render 또는 return 안에 있는 모든 것은 화면위에 보여지지만 react native는 그렇지 않다. 일부 component는 IOS 및 Android 운영 체제와 소통하기 위한 것이다.
