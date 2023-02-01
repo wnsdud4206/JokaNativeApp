@@ -1,0 +1,68 @@
+노마드코더 참고 - https://nomadcoders.co/react-native-for-beginners/lectures/3117
+expo 참고 - https://docs.expo.dev/
+
+
+1. 설치와 실행되지
+
+
+/*
+노마드코더는 npm init "프로젝트명"으로 했지만 나는 expo 공식문서에서 알려주는 npx create-expo-app "프로젝트명" 으로 했음, npx create-expo-app . 은 error가 나서 npx create-expo-app JokaWeather로 프로젝트 생성
+*/  create-expo-app이 아니라 expo-cli를 설치하고 그냥 expo init "프로젝트명"이 아닌 npx 혹은 npm?을 덧붙여서 npx expo init "프로젝트명" 으로 진행해야 할듯
+참고 - https://fomaios.tistory.com/entry/React-Native-Expo%EB%9E%80-feat-%EC%84%A4%EC%B9%98%ED%95%98%EB%8A%94-%EB%B0%A9%EB%B2%95#recentCommentsexpo-cli
+> npm install expo-cli
+> npx expo init "프로젝트명"
+>> blank 선택
+> npx expo install react-native-web@~0.18.9 react-dom@18.1.0 @expo/webpack-config@^0.17.2   (버전은 지우고 해도 될듯, 몰라도 npm start > w 를 입력해보면 이렇게 설치하라고 나옴)
+> npx expo login
+
+
+추가 설치? - https://docs.expo.dev/workflow/web/
+
+
+
+강의에서는 간단하게 시작하기 위해 expo라는 프로그램을 사용하지만 실제 프로젝트를 진행할 대는 Java나 Xcode 등을 설치해서 시뮬레이터를로 확인하는 방식으로 진행하는 것을 추천한다.
+
+
+
+강의랑 다르게해서 그런지 강의에서 보이는 .expo-shared와 .expo 폴더가 없음(갑자기 .expo 생김)
+
+
+
+우선 생성 후 아무것도 건드리지 않고 이 react native 코드를 폰에서 실행할 수 있는지 확인을 할 것이다. package.json에서 보면 실행가능한 5개의 command 즉, start, android, ios, web, eject가 있다. 현재 android, ios, eject를 실행시켜보면 아직 작동하지 않을 것이다. 왜냐하면 아직 시뮬레이터가 없기 때문이다.(Java나 Xcode 등) 하지만 이 강의에선 폰에서 바로 보는 방식으로 테스트를 할 것이기 때문에 시뮬레이터가 중요하지 않다.
+
+아무튼 터미털에서 npm start를 하면 qr코드와 추가 명령어 입력이 나오는데 여기서 web을 여는 w를 입력하면 브라우저에 새로운 탭이 열리면서 우리가 생성한 프로젝트의 사이트를 열어준다.(npx expo start --web 이렇게 실행하면 바로 되는듯)
+참고 - https://blog.expo.dev/sunsetting-the-web-ui-for-expo-cli-ab12936d2206
+* npm start를 해도 localhost 주소가 나오지 않는 이유는 현재 개발 툴 웹UI는 중단됐기 때문이라고 한다.
+
+실행하려면 일단 터미널에서 expo에 로그인을 해야한다. npm start를 실행중이라면 종료시키고 컴퓨터에서도 로그인하고 핸드폰에서도 로그인을 시켜줘야한다. 다음 명령어를 입력하고 차례로 로그인을 해준다.(냐 username은 jokaarch)
+참고 - https://docs.expo.dev/get-started/installation/
+> npx expo login(강의에서는 맥으로 해서 그런지 그냥 expo login을 하면 없는 명령어라고 나옴 그래서 공식문서를 참고해서 npx expo login이라고 해주면 된다고 나옴)
+> jokaarch
+> 비밀번호
+
+* 현재 로그인된 유저이름 확인 명령어 npx expo whoami
+
+강의에서는 npm start를 다시 해주면 새 탭이 자동으로 열리면서 현재 프로젝트를 확인할 수 있는데 버전이 업그레이드 돼서 그런지 나는 그렇게 안된다. npm start를 하고 다음 명령어가 뜰 때 수동으로 w를 입력해 줘야 할 것같다.
+w를 입력하면 새 탭이 열리면서 현재 프로젝트가 열리는데 터미널에 없었던 url이 생성된다. 현재 열린 탭과 같은 url 이다.
+이제 핸드폰 expo에서도 로그인해주면 현재 프로젝트가 보이고 클릭하면 확인할 수 있다.(같은 네트워크를 사용해야 하는듯) 혹은 npm start를 해줄 때 나오는 qr코드로 접속해도 된다.
+
+참고 - https://iworldt.tistory.com/35
+HTML 요소와 비슷하게 매핑되는 네이티브 컴포넌트를 정리하면 다음과 같다.
+HTML        React Native
+div         <View>
+img         <Image>
+span, p     <Text>
+ul/ol, li   <FlatList>
+
+
+npm start를 입력했을 때 나오는 a, i 명령어는 시뮬레이터가 없기 때문에 실행되지 않는다 하지만 expo를 사용하기 때문에 필요하지 않기도 하다. 그리고 w를 웹으로 보여주고 r, m, d 같은 명령어들은 다음에 알려줄 것이다. 지금 중요한 것은 expo가 실행되고 있다는 것이다.
+
+다시 얘기하자면 expo는 기본적으로 폰에서 우리가 App.js의 코드를 실행시키도록 기다리고 있다. 그리고 실행 방법은 먼저 pc에서는 npx expo login 명령어를 통해 로그인을 해주어야하고 핸드폰 expo 앱에서도 로그인을 해준다.(현재 프로젝트에 expo mudule이 설치되어야함, 공식문서 참고)
+
+
+
+
+2. 수정
+
+
+이제 App.js에서 수정해서 확인해볼 것이다. Text 태그안의 내용을 수정하고 확인해보면 실시간으로 잘 반영되는 것을 확인할 수 있다.
