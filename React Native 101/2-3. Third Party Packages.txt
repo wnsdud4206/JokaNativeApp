@@ -1,0 +1,29 @@
+참고 - https://nomadcoders.co/react-native-for-beginners/lectures/3122
+
+
+
+component와 api의 차이점
+component는 화면에 렌더링할 항목이다. 예를들어 View같은 component들이 있다. 이전에 언급했던 StatusBar도 있는데 나중에 React Native에서 제공하는 StatusBar와 Expo StatusBar의 차이점에 대해서 알아볼 것이다. 요점은 StatusBar는 화면에 렌더링이 된다는 것이다. 정확히 얘기하면 return되는 jsx들이다.
+API는 자바스크립트 코드이다. 자바스크립트 코드가 운영 체제와 소통하는 것은 이미 알고 있을 것이다. 예를 들어 Vibration같은 기능이 있다. 이름처럼 Vibration은 디바이스를 진동시켜준다. React Native로부터 Vibration을 가져올 수 있고 vibration.vibrate나 vibration.cancel을 실행시킬 수 있다. 핸드폰에 Expo go(안드로이드는 Expo) 앱이 있는 경우 위 공식문서의 예시 옆에 QR코드를 스캡해보는 것을 권장한다.
+
+
+공식문서에 지금은 사라진 AsyncStorage라는 것이 있는데 이걸 검색하고 community packages에 들어갈 수 있다.
+참고 - https://reactnative.directory/?search=storage
+그럼 reactnative.directory에 접속하게 되는데 reactnative.directory에는 third-party 패키지와 API가 있다. 예전에는 React Native 팀이 AsyncStorage를 제공했지만 이런 커뮤니티를 따로 만들어 storage를 만들고 싶다면 스스로 만들게끔 해둔 것이다.
+일단 커뮤니티에서 react-native-mmkv-storage를 클릭하면 github 페이지가 나오는데 여기서 다운로드해서 사용하면 된다. 예전과 달리 이제는 이런 커뮤니티에 의존해야 한다.
+
+
+Expo는 React Native가 몇몇 Packages를 지원하지 않는다는 것을 알고 있다. 예를 들어 방금 얘기한 AsyncStorage와 Navigation 같은 것들을 말이다. 하지만 Expo는 이런 Packages가 정말 중요하다는 것을 알고 있다. 그래서 Expo 팀은 자체적으로 Packages와 APIs를 만들기 시작했다. 이걸 Expo SDK라고 한다.
+Expo API Reference - https://docs.expo.dev/versions/latest/
+Expo SDK는 많은 API와 Component가 있다. React Native Packages를 찾을 수 없다면 Expo Packages를 사용하면 된다.
+예를 들어 핸드폰에서 문서를 선택할 수 있는 기능인 DocumentPicker는 Expo Api에서만 찾아볼 수 있고 React Native에서는 찾아볼 수 없는 api이다.
+
+
+
+결국 Expo StatusBar와 React Native StatusBar가 있는 이유를 알 수 있다. Expo가 React Native의 일부 Components와 APIs를 복제하고 개선하기를 결정했기 때문이다. 따라서 Expo가 제공하는 StatusBar는 React Native에서 제공하는 StatusBar와 같다. 하지만 약간 다르다. 예를 들어 functions 이름이 다르다. 각각 Expo와 React Native의 공식문서에서 StatusBar를 찾아보면
+React Native StatusBar - https://reactnative.dev/docs/statusbar
+Expo StatusBar - https://docs.expo.dev/versions/latest/sdk/status-bar/
+우선 Expo의 StatusBar는 평범한 StatusBar와 같지만 Expo StatusBar 문서의 우측 사이드바를 보면 다른 API가 있는 것을 볼 수 있다. 예를 들어 StatusBarStyle을 보면 "auto", "inverted", "light", or "dark" 와 같은 항목들이 있다. React Native의 StatusBarStyle을 보면 Expo와는 다르게 "default", "light-content", "dark-content"가 있는 것을 확인할 수 있다. 결과는 같다. 아마 Expo StatusBar는 아까말한 것 처럼 React Native StatusBar를 복제했을 가능성이 높다. 다른점은 이건 Expo에서 지원하고 다른 기능을 가질 수 있다는 것이다.
+이 외에도 다양한 API들이 있는데 사용할 때 공식문서에서 알려주는 대로 import해서 사용하면 된다. React Native에서 사라진 AsyncStorage도 Expo API에서 사용할 수 있다.
+
+

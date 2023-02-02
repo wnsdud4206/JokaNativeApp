@@ -2,3 +2,6 @@
 
 
 
+React Native 공식문서 - https://reactnative.dev/docs/components-and-apis
+
+위 공식문서의 Core Components and APIs 목록에 보면 저번 강의에서 봤던 StatusBar가 있다. 하지만 import할 때 react-native에서 불러오는 StyleSheet, View, Text와는 다르게 StatusBar는 expo-status-bar라는 모듈에서 불러오고 있다.

@@ -1,0 +1,87 @@
+참고 - https://nomadcoders.co/react-native-for-beginners/lectures/3123
+
+
+
+이번 강의에서는 React Native의 레이아웃 시스템에 대해 알아볼 것이다. 왜냐하면 React Native에서 레이아웃을 만들려면 Flexbox를 사용해야 하기 때문이다. Flexbox는 웹에서와 거의 동일하게 작동한다. 차이점은 React Native에서는 display속성의 block과 inline-block, grid가 없다. 때문에 오직 Flexbox만 필요하다.
+
+
+우선 기존 App.js에 있던 로직들을 다음과 같이 셋업해준다.
+ex) App.js
+import React from "react";
+import { View } from "react-native";
+
+export default function App() {
+  return (
+    <View>
+      <View></View>
+      <View></View>
+      <View></View>
+    </View>
+  );
+}
+
+StatusBar도 지웠는데 화면에 보이는 StatusBar는 사라지지 않았다. 왜냐하면 Component를 없앴다고 해서 StatusBar가 사라지지 않기 때문이다. Component는 단지 운영체제를 구성할 수 있는 방법일 뿐이다.
+
+
+이제부터 React Native의 Flexbox가 웹과 어떻게 다른지 알아볼 것이다. 일단 style부터 설정해준다.
+ex)
+...
+  return (
+    <View>
+      <View
+        style={{ width: 200, height: 200, backgroundColor: "tomato" }}
+      ></View>
+      <View style={{ width: 200, height: 200, backgroundColor: "teal" }}></View>
+      <View
+        style={{ width: 200, height: 200, backgroundColor: "orange" }}
+      ></View>
+    </View>
+  );
+...
+
+npm start해서 보이듯이 기본적으로 flex-direction column처럼 되어있다. 현재 최상위 container인 View의 style을 flexDirection: "row"로 바꿔보면 이제 가로로 배열되는 것을 확인할 수 있다. 즉 View의 display는 flex이고 flexDirection의 기본값을 column이라는 것이다.
+ex) App.js
+...
+  return (
+    <View style={{ flexDirection: "row" }}>     // this
+      <View
+        style={{ width: 200, height: 200, backgroundColor: "tomato" }}
+      ></View>
+      <View style={{ width: 200, height: 200, backgroundColor: "teal" }}></View>
+      <View
+        style={{ width: 200, height: 200, backgroundColor: "orange" }}
+      ></View>
+    </View>
+  );
+...
+
+이로써 알 수 있는 점은 web에서처럼 flex의 container를 만들어 줄 필요 없이 그저 상위에 있는 View가 Flex Container가 된다는 것이다. 또 웹에서의 flex-direction 기본값 row였지만 React Native에서 flexDrection의 기본값은 column이다.
+그리고 기억해야 할 것은 대부분은 너비와 높이(width, height)에 기반해서 레이아웃을 만들지 않을 것이다. 왜냐하면 지금처럼 너비 200과 높이 200은 스크린 사이즈에 따라서 다르게 보이기때문이다. 따라서 우리는 반응형 디자인에 대해서 생각해두어야한다. 만약 우리가 아이콘이나 아바타가 있다면 width나 height를 사용할 수 있겠지만 레이아웃에는 이것을 사용하지 않을 것이다.
+
+다시 flexDirection 속성과 width, height 속성을 지워주고 이제 width, height 없이 React Native 방식으로 레이아웃을 만드는 방법을 배울 것이다.
+ex) App.js
+...
+  return (
+    <View>
+      <View style={{ backgroundColor: "tomato" }}></View>
+      <View style={{ backgroundColor: "teal" }}></View>
+      <View style={{ backgroundColor: "orange" }}></View>
+    </View>
+  );
+...
+
+React Native에서는 숫자만 생각하면 된다. 다시 말해 우리는 모든 View가 모두 Flex Container라는 것을 알고 있고 이제 우리는 걔네들에게 Flex Size를 줘야한다.
+상위 View Container에게 flex: 1이라는 속성을 줄 것이다. 확인해 보면 아무것도 바뀌지 않았지만 다시 자식 View 들에게도 똑같이 flex: 1 을 줄 것이다.
+ex) App.js
+...
+  return (
+    <View style={{ flex: 1 }}>
+      <View style={{ flex: 1, backgroundColor: "tomato" }}></View>
+      <View style={{ flex: 1, backgroundColor: "teal" }}></View>
+      <View style={{ flex: 1, backgroundColor: "orange" }}></View>
+    </View>
+  );
+...
+
+이렇게 저장하고 확인해보면 자식 View들이 서로 height 크기는 일정하게 분배가 되고 화면 전체를 차지하는 상태가 될 것이다. 즉, 비율로만 레이아웃을 잡은 것이다. width, height나 px값을 사용하지 않고 비율로만 레이아웃을 잡았다.
+다시 말해서 부모 요소인 View Container에 화면 전체를 차지하도록 flex: 1을 주고(그 Container의 형제 요소가 없기 때문에 1보다 높은 값은 의미가 없다.) 자식 요소들에게 그 차지한 크기를 각각 flex: 1만큼 동일하게 분배되도록 해준 것이다.
