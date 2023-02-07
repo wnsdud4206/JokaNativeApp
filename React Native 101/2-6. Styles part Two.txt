@@ -2,3 +2,252 @@
 
 
 
+ex) App.js
+...
+  return (
+    <View style={styles.container}>
+      <View style={styles.city}>
+        <Text style={styles.cityName}>Seoul</Text>
+      </View>
+      <View style={styles.weather}>
+        <View style={styles.day}>
+          <Text style={styles.temp}>27</Text>
+          <Text style={styles.description}>Sunny</Text>
+        </View>
+        <View style={styles.day}>
+          <Text style={styles.temp}>27</Text>
+          <Text style={styles.description}>Sunny</Text>
+        </View>
+        <View style={styles.day}>
+          <Text style={styles.temp}>27</Text>
+          <Text style={styles.description}>Sunny</Text>
+        </View>
+        <View style={styles.day}>
+          <Text style={styles.temp}>27</Text>
+          <Text style={styles.description}>Sunny</Text>
+        </View>
+      </View>
+      <StatusBar style="auto" />
+    </View>
+  );
+...
+
+위처럼 하고 봤을 때 웹이라면 우리는 스크롤을 할 수 있을 거라고 생각하겠지만 React Native에서는 스크롤이 되지 않는다. 왜냐하면 이건 View이기 때문이다. 그렇기 때문에 React Native에서 스크롤을 사용할 수 있게 해주는 ScrollView Component를 사용할 것이다.
+참고 - https://reactnative.dev/docs/scrollview
+공식문서의 ScrollView를 보면 아주 많은 props들이 있는데 배울 것이 너무 많기 때문에 모든 props를 보지는 않을 것이다. 요점은 이 component가 스크롤 다운을 할 수 있게 해준다는 것이다.
+
+이제 View styles.weather를 ScrollView로 바꾸어 줄 것이다.
+ex) App.js
+...
+  return (
+    <View style={styles.container}>
+      <View style={styles.city}>
+        <Text style={styles.cityName}>Seoul</Text>
+      </View>
+      <ScrollView style={styles.weather}>
+        <View style={styles.day}>
+          <Text style={styles.temp}>27</Text>
+          <Text style={styles.description}>Sunny</Text>
+        </View>
+        <View style={styles.day}>
+          <Text style={styles.temp}>27</Text>
+          <Text style={styles.description}>Sunny</Text>
+        </View>
+        <View style={styles.day}>
+          <Text style={styles.temp}>27</Text>
+          <Text style={styles.description}>Sunny</Text>
+        </View>
+        <View style={styles.day}>
+          <Text style={styles.temp}>27</Text>
+          <Text style={styles.description}>Sunny</Text>
+        </View>
+      </ScrollView>
+      <StatusBar style="auto" />
+    </View>
+  );
+...
+
+그럼 이전처럼 날씨 숫자들이 겹쳐보이는 것이 아니라 자연스럽게 세로로 정렬되어 스크롤해서 볼 수 있도록 된 것을 확인할 수 있다.(아이폰에서는 스크롤을 끝까지 잡아당기다가 놓으면 바운싱 효과가 있는데 안드로이드는 없을 것이다.)
+우리는 일단 세로가 아닌 가로스크롤을 구현할 것이기 때문에 props로 horizontal을 사용할 것이다.
+ex) App.js
+...
+  return (
+    <View style={styles.container}>
+      <View style={styles.city}>
+        <Text style={styles.cityName}>Seoul</Text>
+      </View>
+      <ScrollView horizontal style={styles.weather}>      // this
+        <View style={styles.day}>
+          <Text style={styles.temp}>27</Text>
+          <Text style={styles.description}>Sunny</Text>
+        </View>
+        <View style={styles.day}>
+          <Text style={styles.temp}>27</Text>
+          <Text style={styles.description}>Sunny</Text>
+        </View>
+        <View style={styles.day}>
+          <Text style={styles.temp}>27</Text>
+          <Text style={styles.description}>Sunny</Text>
+        </View>
+        <View style={styles.day}>
+          <Text style={styles.temp}>27</Text>
+          <Text style={styles.description}>Sunny</Text>
+        </View>
+      </ScrollView>
+      <StatusBar style="auto" />
+    </View>
+  );
+...
+
+이제 안드로이드 expo에서 확인해보면 가로로 스크롤 되는 것을 확인할 수 있다. 하지만 어떤 문제가 생기는데 ScrollView는 이상한 사이즈를 가지게 되었다. 분면 weather의 flex는 3이 값을 가지고 있지만 위쪽의 cityName보다 weather의 size가 작아졌다. ScrollView를 사용할 때 style을 만들고 싶다면 style prop을 사용하면 되는데 대신? contentContainerStyle을 사용하면 된다. (많은 component나 props들을 배우려면 React Native documentation을 참고하면서 많이 해보는 것이 좋다.)
+그럼 이제 ScrollView Component의 style 속성을 contentContainerStyle로 바꾸어 줄 것이다.
+ex) App.js
+...
+  return (
+    <View style={styles.container}>
+      <View style={styles.city}>
+        <Text style={styles.cityName}>Seoul</Text>
+      </View>
+      <ScrollView horizontal contentContainerStyle={styles.weather}>
+...
+
+그럼 이제 weather의 세로 사이즈가 원래 상태로 돌아왔다. 하지만 어떤 이유에 의해서 가로스크롤링이 멈추게 된다. 왜 이런게 되냐면 ScrollView에는 Flex 사이즈를 줄 필요가 없기 때문이다. 생각해보면 지금 이 ScrollView는 스크린보다 커야하기 때문이다.(flex는 화면의 사이즈가 기준이라 화면보다 어떤 값을 주어도 화면보다 큰 사이즈를 줄 수 없음) 따라서 weather의 style중에 필요하지 않은 flex 속성을 지워줄 것이다.
+ex) App.js
+...
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#1e83a4",
+  },
+  city: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  cityName: {
+    fontSize: 68,
+    fontWeight: "500",
+  },
+  weather: {
+    // flex: 3,
+  },
+...
+
+이렇게 하면 겹쳐지는 부분과 멈추는 스크롤도 없고 사이즈도 유지되도록 잘 적용이 될 것이다.(왜 그런거지?) day의 flex: 1 도 동작하지 않기 때문에 지워준다.
+그리고 핸드폰을 흔들거나 터미널에서 m을 입력해주면 핸드폰에 Show Element Inspector 라는 메뉴가 나오는데 선택하면 component들의 정보들을 볼 수 있다.
+현재 27이라는 날씨가 옆으로 스크롤하면 한 화면에 한 날씨씩 나오도록 해주고 싶은데 지금은 너무 따닥따닥붙어있다. 이 경우에는 Flex가 작동하지 않을 것이다. 왜냐하면 실제로 전체 화면을 가져오고 싶기 때문이다. 즉, 하나의 day가 전체 화면의 크기가 될 것이라고 할 것이다. 화면의 사이즈를 api를 가져올 것이다. 우리가 호출할 API는 Dimensions이다.
+참고 - https://reactnative.dev/docs/dimensions
+Dimensions를 사용하면 화면 크기를 얻을 수 있다. Dimensions를 import해주고 공식문서처럼 사용해면 될 것이다.
+ex)
+const windowWidth = Dimensions.get("window").width;
+const windowHeight = Dimensions.get("window").height;
+
+ex) App.js
+import React from "react";
+import { ScrollView, StyleSheet, Dimensions, Text, View } from "react-native";
+import { StatusBar } from "expo-status-bar";
+
+const { width: SCREEN_WIDTH } = Dimensions.get("window");   // height는 필요x, 변수명 SCREEN_WIDTH로 변경
+// 이렇게 해주어도 됨
+// const SCREEN_WIDTH = Dimensions.get("window").width;
+
+console.log(SCREEN_WIDTH);
+...
+
+이렇게 하고 웹으로 연 탭에서 개발자도구 console에서 width값이 출력된 것을 확인할 수 있다.(내 웹에서의 경우 320의 값이 출력됨)
+이제 내 모든 day에게 SCREEN_WIDTH를 가지라고 할 수 있다.
+ex) App.js
+...
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#1e83a4",
+  },
+  city: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  cityName: {
+    fontSize: 68,
+    fontWeight: "500",
+  },
+  weather: {
+    // flex: 3,
+    backgroundColor: "#369bbc",
+  },
+  day: {
+    width: SCREEN_WIDTH,        // this
+    alignItems: "center",
+  },
+  temp: {
+    marginTop: 50,
+    fontSize: 178,
+  },
+  description: {
+    marginTop: -30,
+    fontSize: 62,
+  },
+});
+
+이제 확인해보면 pc(mobile)에서도 내 안드로이드에서도 각각 day가 가로화면의 일정한 크기만큼 사이즈를 가지는 것을 확인할 수 있다.
+하지만 아직 우리가 원하는대로 스크롤이 고정?되고 있지 않다. 여기에 필요한 다른 API를 사용할 건데 ScrollView의 props인 pagingEnabled를 사용할 것이다.
+참고 - https://reactnative.dev/docs/scrollview#pagingenabled
+pagingEnabled는 우리가 스크롤을 자유롭게 하지 못하게 한다.
+ex) App.js
+...
+  return (
+    <View style={styles.container}>
+      <View style={styles.city}>
+        <Text style={styles.cityName}>Seoul</Text>
+      </View>
+      <ScrollView pagingEnabled horizontal contentContainerStyle={styles.weather}>
+...
+
+이렇게 ScrollView의 property로 pagingEnabled를 추가해주고 확인해보면 각각의 day가 어중간한 위치에 멈추지 않고 화면에 맞게 자동으로 위치해주는 것을 확인할 수 있다.
+추가로 모바일에서 스크롤할 때 하단에 스크롤표시가 뜨는데 이것을 숨기려면 ScrollView의 props로 showHorizontalScrollIndicator를 사용하면 된다.
+참고 - https://reactnative.dev/docs/scrollview#showshorizontalscrollindicator
+ex) App.js
+...
+  return (
+    <View style={styles.container}>
+      <View style={styles.city}>
+        <Text style={styles.cityName}>Seoul</Text>
+      </View>
+      <ScrollView
+        pagingEnabled
+        horizontal
+        showsHorizontalScrollIndicator={false}      // this
+        contentContainerStyle={styles.weather}
+      >
+...
+
+그럼 이제 스크롤 할 때 하단에 스크롤 표시가 없어진 것을 확인할 수 있다.
+이 하단 스크롤표시를 숨기지 않고 스타일을 바꾸고 싶다면 ScrollView props로 indicatorStyle을 사용하면 된다.(iOS에서만 사용가능) iOS에서는 scroll indicator의 색상을 변경할 수 있다.
+ex) App.js
+...
+  return (
+    <View style={styles.container}>
+      <View style={styles.city}>
+        <Text style={styles.cityName}>Seoul</Text>
+      </View>
+      <ScrollView
+        pagingEnabled
+        horizontal
+        indicatorStyle="white"      // this
+        contentContainerStyle={styles.weather}
+      >
+...
+
+이렇게 되면 iOS에서 스크롤 표시바가 하얀색으로 바뀐 것을 확인할 수 있다. indicatorStyle은 iOS에서만 동작하지만 안드로이드에서만 동작하는 props들 중 하나인 persistentScrollbar라는 prop이 있다. 이 기능은 스크롤바가 투명해지지 않도록 해준다.
+다시 indicatorStyle을 지우고 showsHorizontalScrollIndicator={false}를 적용해준다.
+
+
+이제 스타일은 끝났고 location을 시작할 시간이 왔다. 첫번째 유저의 위치를 가져와야 하고 두번째는 해당 위치를 API에 전송하고 날씨를 가져와야 한다.
+
+
+
+정리
+스크롤을 이 되는 View 를 사용하고 싶다면 ScrollView를 사용
+ScrollView에서 flex를 주면 사이즈가 이상해짐
+각각의 디바이스의 화면 사이즈를 가져오려면 React Native에서 Dimensions을 가져오고 Dimensions.get("window")의 width 혹은 height를 가져와 사용하면 된다.

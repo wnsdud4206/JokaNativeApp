@@ -1,0 +1,294 @@
+참고 - https://nomadcoders.co/react-native-for-beginners/lectures/3127
+
+* 3.0 대신에 2.5 를 API URL 에 사용하세요.
+
+
+
+/*
+댓글
+1.
+(23-01-22) API를 결제하지 않고 쓰시고 싶으신 분들을 위해 씁니다.
+OpenWeather 사이트에서 무료 버전을 쓰시는 경우 날씨 관련해서 사용할 수 있는 API는 2개입니다.
+1. Current Weather
+2. 3-hour Forecast 5 days
+(* 구독별 사용 가능 API 확인 : https://openweathermap.org/price )
+
+이 중 여러 날짜의 날씨를 확인하고 싶으면 3-hour Forecast 5 days ( https://openweathermap.org/forecast5 ) 를 사용해서 데이터를 받아옵니다. 그냥 사이트의 API call을 복사 붙여넣기하면 앞에 "https://"가 안 적혀 있으니 왜 안되는지 찾느라 저처럼 고생하지 마세요.
+fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&appid=${API_KEY}&units=metric`);
+
+근데 이 데이터는 1일마다가 아닌 3시간마다 데이터가 있습니다. 그러니 원하는 시간대의 날씨를 얻어야 합니다. 날씨 데이터는 오브젝트(json) 내부에 {list : [배열]} 로 존재하며, 배열의 요소 안에는 dt_txt로 현재 날짜와 시간이 적힌 문자열이 존재합니다. 자세한 구성 요소는 위의 3-hour Forecast 5 days 사이트에서 확인이 가능합니다. 어쨌든 그것을 이용해서 원하는 시간대의 날씨를 가져옵니다. 저는 0시의 데이터를 가져오기 위해 다음과 같은 코드를 사용했습니다.
+setDays(
+json.list.filter((weather) => {
+if (weather.dt_txt.includes("00:00:00")) {
+return weather;
+}
+})
+);
+
+이후 날씨의 온도와 main 날씨, description을 출력하는 코드를 map 안에 다음과 같이 출력했습니다. 스타일은 사람마다 다를 수 있습니다.
+View key={index} style={styles.day}>
+Text style={styles.temp}>
+{parseFloat(day.main.temp).toFixed(1)}
+/Text>
+Text style={styles.description}>{day.weather[0].main}
+Text style={styles.tinyText}>{day.weather[0].description}
+/Text>
+/View>
+[* 맨 앞에 < 붙이기]
+
+이렇게 하면 저는 잘 나오네요 👍
+
+
+2.
+(2022. 11. 03 기준)
+One Call API 3.0 사용하실 수 있습니다. 방법은 아래와 같습니다.
+
+1. fetch(`URL`)
+-> https://api.openweathermap.org/data/3.0/onecall?lat={lat}&lon={lon}&exclude=alerts&appid={API key}
+
+2. One Call API에 Subscription 하기
+-> https://home.openweathermap.org/subscriptions/billing_info/onecall_30/base?key=base&service=onecall_30에 접속해서 입력하라는 정보들과 자신의 카드 정보 입력(API 요청 100회마다 0.12파운드(한화 200원 안 됨) 결제. 100회나 요청할 것도 없어서 사실상 무료)
+
+3. 이후 또다시 에러뜨면, 에러 메세지 제일 아래에 있는 URL로 들어간 뒤 code:401 선택 후 Email confirmation 하면 됩니다.
+
+
+3.
+invalid api 나오시는 분들 하단 api 로 바꿔서 사용해보세요 - https://openweathermap.org/current
+*/
+
+
+
+ask를 getWeather로 이름을 바꾸어 주었고 location이라는 state도 지웠다. 그리고 날씨를 받아오기 위해 days라는 state 추가
+ex) App.js
+...
+  const [city, setCity] = useState("Loading...");
+  const [days, setDays] = useState([]);
+  const [ok, setOk] = useState(true);
+  const getWeather = async () => {
+    const { granted } = await Location.requestForegroundPermissionsAsync();
+    if (!granted) {
+      setOk(false);
+    }
+    const {
+      coords: { latitude, longitude },
+      // } = await Location.getLastKnownPositionAsync({ accuracy: 5 });
+    } = await Location.getCurrentPositionAsync({ accuracy: 5 });
+
+    Location.setGoogleApiKey("AIzaSyBrCqiddDH1pUKIXy_KRD2gqEpqjxJ9SBY");
+    const place = await Location.reverseGeocodeAsync(
+      {
+        latitude,
+        longitude,
+      },
+      { useGoogleMaps: false },
+    );
+    setCity(place[0].city);
+  };
+  useEffect(() => {
+    getWeather();
+  }, []);
+...
+
+
+정보를 받아오기 위해 open weather API라는 사이트를 이용할 것이다.
+open weather API - https://openweathermap.org/
+이 사이트에 가입하고 API key를 받아야한다.
+내 API key - https://home.openweathermap.org/api_keys
+이제 API key를 복사해서 다음과 같이 작성해준다.
+ex) App.js
+...
+const API_KEY = "c3d64abd985a5e5d422ceeefa8ed7137";
+...
+
+알다시피 이건 안전한 방법이 아니다 우리 application에 API key를 넣으면 안된다. 실제로 이게 내 application이라면 이 API key를 서버에 둘 것이다. 하지만 open weather의 API key는 무료이기때문에 application에서 사용할 것이다.
+
+다음은 one call API로 이동 - https://openweathermap.org/api/one-call-3
+* 3.0이 아닌 2.5를 사용하라고 했음
+우리는 Daily forecast for 8 days 를 사용할 것이다.
+ex) App.js
+...
+  const getWeather = async () => {
+    const { granted } = await Location.requestForegroundPermissionsAsync();
+    if (!granted) {
+      setOk(false);
+    }
+    const {
+      coords: { latitude, longitude },
+      // } = await Location.getLastKnownPositionAsync({ accuracy: 5 });
+    } = await Location.getCurrentPositionAsync({ accuracy: 5 });
+
+    Location.setGoogleApiKey("AIzaSyBrCqiddDH1pUKIXy_KRD2gqEpqjxJ9SBY");
+    const place = await Location.reverseGeocodeAsync(
+      {
+        latitude,
+        longitude,
+      },
+      { useGoogleMaps: false },
+    );
+    setCity(place[0].city);
+    const response = await fetch(
+      `https://api.openweathermap.org/data/3.0/onecall?lat=${latitude}&lon=${longitude}&exclude=alerts&appid=${API_KEY}`,
+    );
+    const json = await response.json();
+    console.log(json);
+...
+
+또 에러 출력됨..
+cod: 401
+message: "Invalid API key. Please see https://openweathermap.org/faq#error401 for more info."
+
+아래 api로 변경해서 사용
+https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={API key}
+된다
+ex) App.js
+...
+    const response = await fetch(
+      `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${API_KEY}`,
+    );
+    const json = await response.json();
+    console.log(json);
+...
+
+console 출력
+base: "stations"
+clouds: {all: 0}
+cod: 200
+coord: {lon: 127.1151, lat: 37.3502}
+dt: 1675671809
+id: 6573747
+main: {temp: 280.84, feels_like: 280.12, temp_min: 277.55, temp_max: 281.84, pressure: 1020, …}
+name: "Dongjinwon"
+sys: {type: 1, id: 5509, country: 'KR', sunrise: 1675636265, sunset: 1675674004}
+timezone: 32400
+visibility: 8000
+weather: [{…}]
+wind: {speed: 1.54, deg: 30}
+
+
+이제 우리는 daily array에 접근하면 된다.(setDays에 json.daily 저장)
+* 강의에서는 json.daily로 해주었지만 나는 json.weather로 해줌, daily 속성이 없음
+표시해주기 전에 우리는 로딩화면을 출력해줄 것이다. react native 문서에서 Activity indicator 라는 component 사용(로딩 애니메이션)
+ex) App.js
+import React, { useEffect, useState } from "react";
+import * as Location from "expo-location";
+import {
+  ScrollView,
+  StyleSheet,
+  Dimensions,
+  Text,
+  View,
+  ActivityIndicator,
+} from "react-native";
+import { StatusBar } from "expo-status-bar";
+
+const { width: SCREEN_WIDTH } = Dimensions.get("window");
+
+const API_KEY = "c3d64abd985a5e5d422ceeefa8ed7137";
+
+export default function App() {
+  const [city, setCity] = useState("Loading...");
+  const [days, setDays] = useState([]);
+  const [ok, setOk] = useState(true);
+  const getWeather = async () => {
+    const { granted } = await Location.requestForegroundPermissionsAsync();
+    if (!granted) {
+      setOk(false);
+    }
+    const {
+      coords: { latitude, longitude },
+      // } = await Location.getLastKnownPositionAsync({ accuracy: 5 });
+    } = await Location.getCurrentPositionAsync({ accuracy: 5 });
+
+    Location.setGoogleApiKey("AIzaSyBrCqiddDH1pUKIXy_KRD2gqEpqjxJ9SBY");
+    const place = await Location.reverseGeocodeAsync(
+      {
+        latitude,
+        longitude,
+      },
+      { useGoogleMaps: false },
+    );
+    setCity(place[0].city);
+    const response = await fetch(
+      `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${API_KEY}&units=metric`, // &units=metric은 온도(temp?)단위 변경
+    );
+    const json = await response.json();
+    console.log(json);
+    setDays(json);
+  };
+  useEffect(() => {
+    getWeather();
+  }, []);
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.city}>
+        <Text style={styles.cityName}>{city}</Text>
+      </View>
+      <ScrollView
+        pagingEnabled
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.weather}
+      >
+        {days.length === 0 ? (
+          <View style={styles.day}>
+            <ActivityIndicator
+              color="white"
+              style={{ marginTop: 10 }}
+              size="large"
+            />
+          </View>
+        ) : (
+          days.weather.map((day, index) => (
+            <View key={index} style={styles.day}>
+              <Text style={styles.temp}>
+                {parseFloat(days.main.temp).toFixed(1)}
+              </Text>
+              <Text style={styles.description}>{day.main}</Text>
+              <Text style={styles.tinyText}>{day.description}</Text>
+            </View>
+          ))
+        )}
+      </ScrollView>
+      <StatusBar style="auto" />
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#1e83a4",
+  },
+  city: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  cityName: {
+    fontSize: 68,
+    fontWeight: "500",
+  },
+  weather: {
+    // flex: 3,
+    // backgroundColor: "#369bbc",
+  },
+  day: {
+    width: SCREEN_WIDTH,
+    alignItems: "center",
+  },
+  temp: {
+    marginTop: 50,
+    fontSize: 100,
+  },
+  description: {
+    marginTop: -30,
+    fontSize: 62,
+  },
+  tinyText: {
+    fontSize: 20,
+  },
+});
+
+
+다음 강의에서는 아이콘을 넣을 것이다.

@@ -1,0 +1,214 @@
+참고 - https://nomadcoders.co/react-native-for-beginners/lectures/3126
+
+
+
+참고 - https://docs.expo.dev/versions/latest/sdk/location/
+이제 유저의 위치정보를 가져올 것이다. 일단 터미널에서 expo-location을 설치해준다.
+ex) npx expo install expo-location
+
+requestPermissionsAsync(): 권한을 요청
+getLastKnownPositionAsync(): 유저의 마지막 위치
+getCurrentPositionAsync(): 유저의 현재 위치
+watchPositionAsync(): 위치를 관찰
+geocodeAsync(): 주소를 받아서 위도와 경도로 변환
+...
+
+
+우리가 지금부터 코딩하는 것은 React Native와 연관이 없다. 이건 단지 일반 자바스크립트 코드이다.
+공식문서의 expo location을 참고해 가면서 코딩할 것이다.(useEffect, useState 사용)
+ex) App.js
+import React, { useEffect } from "react";
+import * as Location from "expo-location";
+import { ScrollView, StyleSheet, Dimensions, Text, View } from "react-native";
+import { StatusBar } from "expo-status-bar";
+
+const { width: SCREEN_WIDTH } = Dimensions.get("window");
+
+export default function App() {
+  const [location, setLocation] = useState(null);
+  const [ok, setOk] = useState(true);
+  const ask = async () => {
+    const permission = await Location.requestForegroundPermissionsAsync();
+    console.log(permission);
+  };
+  useEffect(() => {
+    ask();
+  }, []);
+...
+
+이렇게 되면 expo 앱에서 우리의 위치정보를 허용할 것이냐고 초기에 한 번만 묻게 되고 그 정보가 터미널에 출력된다. 앱에서 허가가 되면 위치를 요청할 수 있는 것이다.
+permission 안에 granted가 있는데 유저가 위치정보를 허용했는지 알려주고 만약 허용하지 않았다면 날씨정보를 가져오지 못했다는 화면을 출력해줄 것이다.
+ex) App.js
+...
+export default function App() {
+  const [location, setLocation] = useState(null);
+  const [ok, setOk] = useState(true);
+  const ask = async () => {
+    const {granted} = await Location.requestForegroundPermissionsAsync();
+    if (!granted) {
+      setOk(false);
+    }
+  };
+  useEffect(() => {
+    ask();
+  }, []);
+...
+
+다음은 getCurrentPositionAsync()를 사용해서 유저의 위치 정보를 얻어야 한다.(accuracy라는 정확도가 나눠져 있는듯? 우리는 5번째)
+ex) App.js
+...
+export default function App() {
+  const [location, setLocation] = useState(null);
+  const [ok, setOk] = useState(true);
+  const ask = async () => {
+    const { granted } = await Location.requestForegroundPermissionsAsync();
+    if (!granted) {
+      setOk(false);
+    }
+    const location = await Location.getCurrentPositionAsync({ accuracy: 5 });
+    console.log(location);
+  };
+  useEffect(() => {
+    ask();
+  }, []);
+...
+
+{
+  coords: {latitude: 37.3501805, longitude: 127.1138277, altitude: null, accuracy: 1083.4280684002858, altitudeAccuracy: null, …}
+  timestamp: 1675415689497
+}
+콘솔에 위와같이 출력이 된다.
+이렇게 우리는 고도(altitudeAccuracy), 방향(heading), 위도(latitude), 경도(longitude), 속도(speed)를 알 수 있다. 우리는 coords안의 latitude와 longitude를 가져올 것이다.
+ex)
+...
+    const {
+      coords: { latitude, longitude },
+    } = await Location.getCurrentPositionAsync({ accuracy: 5 });
+...
+
+이제 latitude와 longitude를 가지고 reverse geocoding을 할 수 있다.
+ex) App.js
+...
+export default function App() {
+  const [location, setLocation] = useState(null);
+  const [ok, setOk] = useState(true);
+  const ask = async () => {
+    const { granted } = await Location.requestForegroundPermissionsAsync();
+    if (!granted) {
+      setOk(false);
+    }
+    const {
+      coords: { latitude, longitude },
+    } = await Location.getCurrentPositionAsync({ accuracy: 5 });
+    const location = await Location.reverseGeocodeAsync(
+      {
+        latitude,
+        longitude,
+      },
+      { useGoogleMaps: false },
+    );
+    console.log(location);
+  };
+...
+
+* 오류가 나면 참고
+useGoogleMaps 관련해서 api키 오류나시는 분들 Google Maps Platform에서 Geocoding API만드셔서 key를 얻은 다음 Location.setGoogleApiKey(key)를 reverseGeocodeAsync보다 선행해주시면 됩니다. 결제절차가 끼어있는데 무료평가판을 사용하시면 될 듯 하네요
+
+Google Maps Platform : https://console.cloud.google.com/home
+
+8:05 부터 막힘... 오류..
+
+Expo Location 을 설치하지 않아서? -> npx expo i expo-location
+
+Google API 발급 - https://console.cloud.google.com/project/_/google/maps-apis/credentials?utm_source=Docs_Credentials&hl=ko&_gl=1*196bk6b*_ga*MTA5MDg1MTU0OS4xNjYzMDUyMjkw*_ga_NRWSTWS78N*MTY3NTY2Mzc3NC4yLjEuMTY3NTY2NjIxMy4wLjAuMA..
+* API 키 - AIzaSyBrCqiddDH1pUKIXy_KRD2gqEpqjxJ9SBY
+* 결제? - https://console.cloud.google.com/billing/01B1BF-E2ADD8-4BFA11?referrer=search&hl=ko&project=even-kite-377006
+2023년 5월 8일까지 무료
+여기서 결제 사용 중지 해야됨 - https://console.cloud.google.com/billing/01B1BF-E2ADD8-4BFA11/manage?hl=ko&project=even-kite-377006
+
+
+google maps geoplatform api 키 발급받고 인증해서 확인하니까 성남시라고 잘 출력됨
+ex) App.js
+import React, { useEffect, useState } from "react";
+import * as Location from "expo-location";
+import { ScrollView, StyleSheet, Dimensions, Text, View } from "react-native";
+import { StatusBar } from "expo-status-bar";
+
+const { width: SCREEN_WIDTH } = Dimensions.get("window");
+
+export default function App() {
+  const [city, setCity] = useState("Loading...");
+  const [location, setLocation] = useState();
+  const [ok, setOk] = useState(true);
+  const ask = async () => {
+    const { granted } = await Location.requestForegroundPermissionsAsync();
+    if (!granted) {
+      setOk(false);
+    }
+    const {
+      coords: { latitude, longitude },
+      // } = await Location.getLastKnownPositionAsync({ accuracy: 5 });
+    } = await Location.getCurrentPositionAsync({ accuracy: 5 });
+    
+    Location.setGoogleApiKey("AIzaSyBrCqiddDH1pUKIXy_KRD2gqEpqjxJ9SBY");
+    const place = await Location.reverseGeocodeAsync(
+      {
+        latitude,
+        longitude,
+      },
+      { useGoogleMaps: false },
+    );
+    setCity(place[0].city);
+  };
+  useEffect(() => {
+    ask();
+  }, []);
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.city}>
+        <Text style={styles.cityName}>{city}</Text>
+      </View>
+      <ScrollView
+        pagingEnabled
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.weather}
+      >
+        <View style={styles.day}>
+          <Text style={styles.temp}>27</Text>
+          <Text style={styles.description}>Sunny</Text>
+        </View>
+        <View style={styles.day}>
+          <Text style={styles.temp}>27</Text>
+          <Text style={styles.description}>Sunny</Text>
+        </View>
+        <View style={styles.day}>
+          <Text style={styles.temp}>27</Text>
+          <Text style={styles.description}>Sunny</Text>
+        </View>
+        <View style={styles.day}>
+          <Text style={styles.temp}>27</Text>
+          <Text style={styles.description}>Sunny</Text>
+        </View>
+      </ScrollView>
+      <StatusBar style="auto" />
+    </View>
+  );
+}
+
+place를 console.log에 출력해보면 아래처럼 출력됨
+0: {district: '분당구', city: '성남시', region: '경기도', country: '대한민국', isoCountryCode: 'KR', …}
+1: {district: '분당구', city: '성남시', region: '경기도', country: '대한민국', isoCountryCode: 'KR', …}
+2: {city: '성남시', region: '경기도', country: '대한민국', isoCountryCode: 'KR', name: '9428+33 대한민국 경기도 성남시'}
+3: {district: '분당구', city: '성남시', region: '경기도', country: '대한민국', isoCountryCode: 'KR', …}
+4: {district: '분당구', city: '성남시', region: '경기도', country: '대한민국', isoCountryCode: 'KR', …}
+5: {postalCode: '463-500', district: '분당구', city: '성남시', region: '경기도', country: '대한민국', …}
+6: {district: '분당구', city: '성남시', region: '경기도', country: '대한민국', isoCountryCode: 'KR', …}
+7: {city: '성남시', region: '경기도', country: '대한민국', isoCountryCode: 'KR', name: '대한민국 경기도 성남시'}
+8: {region: '경기도', country: '대한민국', isoCountryCode: 'KR', name: '대한민국 경기도'}
+9: {country: '대한민국', isoCountryCode: 'KR', name: '대한민국'}
+length: 10
+
+
+이제 다른 function에서도 쓸 수 있게 location을 저장할 것이다.
